@@ -29,8 +29,11 @@ min_vol, max_vol = vol_range[0], vol_range[1]
 
 # Initialize hand detector
 detector = htm.HandDetector(min_detection_confidence=0.7)
+
 cap = cv.VideoCapture(0)
+
 previous_time = 0
+frame_counter = 0
 
 if not cap.isOpened():
     print("Error: Could not open the camera.")
@@ -40,7 +43,10 @@ else:
         if not success:
             break
 
-        hands, frame = detector.findHands(frame, draw=False)
+        frame = cv.flip(frame, 1)
+        
+        if frame_counter % 2 == 0:
+            hands, frame = detector.findHands(frame, draw=False)
 
         right_hand = next((h for h in hands if h["type"] == "Right"), None)
         left_hand = next((h for h in hands if h["type"] == "Left"), None)
@@ -86,7 +92,7 @@ else:
                     sbc.set_brightness(brightness_percent)
 
             brightness_color = RED if brightness_percent > 85 else YELLOW
-            cv.putText(frame, 'brightness', (20, 80), cv.FONT_HERSHEY_PLAIN, 1.6, YELLOW, 3)
+            cv.putText(frame, 'Sun', (20, 80), cv.FONT_HERSHEY_PLAIN, 1.6, YELLOW, 3)
             cv.rectangle(frame, (20, 88), (60, 390), YELLOW, 3)
             cv.rectangle(frame, (23, 390 - 3 * brightness_percent), (57, 388), brightness_color, -1)
             cv.putText(frame, f'{brightness_percent}%', (15, 415), cv.FONT_HERSHEY_PLAIN, 1.4, YELLOW, 2)
@@ -95,6 +101,8 @@ else:
         fps = 1 / (current_time - previous_time)
         previous_time = current_time
         cv.putText(frame, f'FPS: {int(fps)}', (10, 50), cv.FONT_HERSHEY_PLAIN, 3, GREEN, 3)
+
+        frame_counter += 1
 
         cv.imshow('Live Cam', frame)
         if cv.waitKey(1) & 0xFF == ord('q'):
