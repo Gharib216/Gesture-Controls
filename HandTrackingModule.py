@@ -24,7 +24,6 @@ class HandDetector():
  
 
     def findHands(self, frame, draw=True):
-            frame = cv.flip(frame, 1)
             frameRGB = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
             self.results = self.hands.process(frameRGB)
             allHands = []
